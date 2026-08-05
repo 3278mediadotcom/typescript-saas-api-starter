@@ -11,3 +11,78 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ============================================================
+// SaaS Data Model
+//
+//   User
+//    │
+//    ├── owns Organization(s)
+//    │        └── contains Project(s)
+//    │                 ├── has ApiKey(s)
+//    │                 └── has AuditLog(s)
+//    └── has AuditLog(s)
+//
+// Multi-tenant design: resources belong to an Organization,
+// never directly to a User. Mirror of Stripe / GitHub / Linear.
+// ============================================================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  role          UserRole       @default(USER)
+  organizations Organization[]
+  auditLogs     AuditLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Organization {
+  id        String    @id @default(uuid())
+  name      String
+  ownerId   String
+  owner     User      @relation(fields: [ownerId], references: [id])
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id             String       @id @default(uuid())
+  name           String
+  description    String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  apiKeys        ApiKey[]
+  auditLogs      AuditLog[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  name       String
+  keyHash    String    @unique
+  projectId  String
+  project    Project   @relation(fields: [projectId], references: [id])
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  metadata  Json?
+  createdAt DateTime @default(now())
+}

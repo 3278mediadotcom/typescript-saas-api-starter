@@ -6,6 +6,8 @@ import helmet from "helmet";
 
 import { config } from "./config/environment";
 
+import routes from "./routes";
+
 import { notFound } from "./middleware/notFound";
 
 import { errorHandler } from "./middleware/errorHandler";
@@ -42,18 +44,12 @@ export function createApp(): express.Express {
 
       docs: "See README.md for API reference",
 
-      endpoints: ["/health"],
+      endpoints: ["/api/v1/health"],
     });
   });
 
-  // Health check
-  app.get("/health", (_req, res) => {
-    res.json({
-      status: "ok",
-
-      service: "typescript-saas-api-starter",
-    });
-  });
+  // Versioned API routes
+  app.use("/api/v1", routes);
 
   // Favicon: APIs don't serve one, but return 204 so
   // browsers don't fall through to the 404 handler

@@ -55,6 +55,12 @@ export function createApp(): express.Express {
     });
   });
 
+  // Favicon: APIs don't serve one, but return 204 so
+  // browsers don't fall through to the 404 handler
+  app.get("/favicon.ico", (_req, res) => {
+    res.status(204).end();
+  });
+
   // 404 for unmatched routes
   app.use(notFound);
 

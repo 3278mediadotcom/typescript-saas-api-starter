@@ -20,6 +20,15 @@ export const auditLogRepository = {
   },
 
   /**
+   * List all audit logs, newest first.
+   */
+  async findAll(): Promise<AuditLog[]> {
+    return prisma.auditLog.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  /**
    * List audit logs by project, newest first.
    */
   async findByProjectId(projectId: string): Promise<AuditLog[]> {

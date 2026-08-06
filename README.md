@@ -48,11 +48,65 @@ src/
 
 ## API Documentation
 
-<!-- TODO: Document each endpoint as it is built -->
-
 ### `GET /api/v1/health`
 
 Health check for load balancers and monitoring.
+
+### `POST /api/v1/auth/register`
+
+Request:
+
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+Response (201):
+
+```json
+{
+  "token": "<jwt>",
+  "user": { "id": "…", "email": "user@example.com", "role": "USER" }
+}
+```
+
+### `POST /api/v1/auth/login`
+
+Request:
+
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+Response (200):
+
+```json
+{
+  "token": "<jwt>",
+  "user": { "id": "…", "email": "user@example.com", "role": "USER" }
+}
+```
+
+### `GET /api/v1/users/me` (authenticated)
+
+Returns the current user profile.
+
+### `POST /api/v1/organizations` (authenticated)
+
+Creates an organization owned by the current user. Body: `{ "name": "Acme Corp" }`.
+
+### `GET /api/v1/audit-logs` (admin only)
+
+Lists audit logs. Optional filters: `?userId=<id>`, `?projectId=<id>`.
+
+### `DELETE /api/v1/users/:id` (admin only)
+
+Deletes a user.
 
 ## Database Design
 
@@ -80,8 +134,30 @@ Security: only **hashed** API keys (`sk_live_...` → SHA-256) are stored, same 
 
 ## Authentication Flow
 
-<!-- TODO: Document register / login / JWT refresh flow -->
-Register and login flows are built on the `userService`, then protected routes use JWT middleware.
+```
+Client                     API
+  │                          │
+  │  POST /auth/login        │
+  ├─────────────────────────►│
+  │  { email, password }     │
+  │                          │  verify bcrypt hash
+  │                          │  sign JWT
+  │  JWT + user              │
+  │◄─────────────────────────┤
+  │                          │
+  │  GET /users/me           │
+  ├── Authorization: Bearer ─►│  authenticate middleware
+  │  <token>                 │  authorize middleware
+  │                          │
+  │  200 user                │
+  │◄─────────────────────────┤
+```
+
+- **Register**: zod validate → email uniqueness check → bcrypt hash → create user → audit log → sign JWT
+- **Login**: find user → bcrypt compare → sign JWT → `USER_LOGIN` audit log
+- **Protected routes**: `authenticate` verifies the JWT and loads the user; `authorize("ADMIN")` enforces roles
+- Generic `INVALID_CREDENTIALS` errors never reveal whether the email or password was wrong
+- **Refresh tokens**: documented strategy for this repo — an access token with configurable expiration (`JWT_EXPIRES_IN`) is sufficient; rotation can be added without breaking the flow
 
 ## Security Features
 
@@ -90,6 +166,11 @@ Register and login flows are built on the `userService`, then protected routes u
 - Helmet security headers
 - CORS whitelisting
 - Structured error responses (no stack traces leaked)
+- `AppError` with machine-readable codes (`UNAUTHORIZED`, `FORBIDDEN`, `INVALID_PAYLOAD`, …)
+- bcrypt password hashing (10 salt rounds)
+- JWT verification + role-based authorization (`USER` / `ADMIN`)
+- API keys stored hashed (SHA-256), never in plain text
+- Audit logging for registration, login, and admin actions
 
 ## Running Locally
 

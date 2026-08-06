@@ -9,6 +9,13 @@ import { auditLogRepository } from "../repositories/auditLog.repository";
  */
 export const auditLogService = {
   /**
+   * List all audit logs, newest first (admin).
+   */
+  async listAll(): Promise<unknown> {
+    return auditLogRepository.findAll();
+  },
+
+  /**
    * List audit logs for a user, newest first.
    */
   async listByUser(userId: string): Promise<unknown> {

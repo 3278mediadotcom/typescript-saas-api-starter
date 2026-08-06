@@ -1,86 +1,23 @@
 import { AppError } from "../utils/AppError";
 
-import { hashPassword } from "../utils/password";
-
 import { logger } from "../utils/logger";
 
 import { userRepository } from "../repositories/user.repository";
 
 import { auditLogRepository } from "../repositories/auditLog.repository";
 
-import type { UserRole } from "../generated/prisma/client";
-
 
 /**
  * User service.
  *
- * Business rules live here. This layer may call
- * multiple repositories and enforce invariants:
+ * Business rules for user management (non-auth):
+ * profile lookup, admin deletion, audit logging.
  *
- *   Register user
- *     ↓
- *   Email already exists?  →  reject
- *     ↓
- *   Hash password
- *     ↓
- *   userRepository.create()
- *     ↓
- *   auditLogRepository.create()
- *     ↓
- *   Return user
+ * Register/login live in auth.service.
  */
 export const userService = {
   /**
-   * Register a new user.
-   */
-  async registerUser(params: {
-    email: string;
-
-    password: string;
-
-    role?: UserRole;
-  }): Promise<unknown> {
-    const { email, password, role = "USER" } = params;
-
-    const existing = await userRepository.findByEmail(email);
-
-    if (existing) {
-      throw new AppError(
-        "An account with this email already exists",
-        409,
-        "EMAIL_TAKEN"
-      );
-    }
-
-    const passwordHash = await hashPassword(password);
-
-    const user = await userRepository.create({
-      email,
-
-      passwordHash,
-
-      role,
-    });
-
-    await auditLogRepository.create({
-      action: "USER_REGISTERED",
-
-      user: {
-        connect: { id: user.id },
-      },
-
-      metadata: {
-        email: user.email,
-      },
-    });
-
-    logger.info("User registered", { userId: user.id });
-
-    return user;
-  },
-
-  /**
-   * Get a user's profile by ID.
+   * Get a user's public profile by ID.
    */
   async getProfile(userId: string): Promise<unknown> {
     const user = await userRepository.findById(userId);
@@ -89,6 +26,69 @@ export const userService = {
       throw new AppError("User not found", 404, "USER_NOT_FOUND");
     }
 
-    return user;
+    return toSafeUser(user);
+  },
+
+  /**
+   * Delete a user (admin only).
+   */
+  async deleteUser(params: {
+    userId: string;
+
+    actorId: string;
+  }): Promise<void> {
+    const { userId, actorId } = params;
+
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
+
+    await userRepository.delete(userId);
+
+    await auditLogRepository.create({
+      action: "USER_DELETED",
+
+      user: {
+        connect: { id: actorId },
+      },
+
+      metadata: {
+        deletedUserId: userId,
+
+        deletedEmail: user.email,
+      },
+    });
+
+    logger.info("User deleted", { deletedUserId: userId });
   },
 };
+
+
+/**
+ * Strip sensitive fields (passwordHash) before returning.
+ */
+export function toSafeUser(user: {
+  id: string;
+
+  email: string;
+
+  role: string;
+
+  createdAt: Date;
+
+  updatedAt: Date;
+}): object {
+  return {
+    id: user.id,
+
+    email: user.email,
+
+    role: user.role,
+
+    createdAt: user.createdAt,
+
+    updatedAt: user.updatedAt,
+  };
+}

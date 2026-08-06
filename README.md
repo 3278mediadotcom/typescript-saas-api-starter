@@ -56,11 +56,32 @@ Health check for load balancers and monitoring.
 
 ## Database Design
 
-<!-- TODO: Document User / Organization / Project / ApiKey / AuditLog schema -->
+Multi-tenant SaaS data model:
+
+```
+User
+ │
+ ├── owns Organization(s)
+ │        └── contains Project(s)
+ │                 ├── has ApiKey(s)
+ │                 └── has AuditLog(s)
+ └── has AuditLog(s)
+```
+
+| Model | Purpose |
+|---|---|
+| `User` | Auth credential + role (`USER` / `ADMIN`) |
+| `Organization` | Multi-tenant boundary; owns resources |
+| `Project` | A scoped unit of work inside an organization |
+| `ApiKey` | Hashed API key for programmatic access |
+| `AuditLog` | Immutable record of security + business actions |
+
+Security: only **hashed** API keys (`sk_live_...` → SHA-256) are stored, same principle as passwords.
 
 ## Authentication Flow
 
 <!-- TODO: Document register / login / JWT refresh flow -->
+Register and login flows are built on the `userService`, then protected routes use JWT middleware.
 
 ## Security Features
 
@@ -90,6 +111,15 @@ cp .env.example .env
 ```
 
 Then edit `.env` with your database URL and JWT secret.
+
+### Database Setup
+
+```bash
+npm run db:generate   # Generate Prisma client
+npm run db:migrate    # Run migrations (needs DATABASE_URL)
+npm run db:seed       # Seed demo data (admin@3278media.com)
+npm run db:studio     # Visual database inspector
+```
 
 ### Run in Development
 

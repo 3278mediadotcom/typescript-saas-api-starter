@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: saas-api-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: saas
+      POSTGRES_PASSWORD: saas
+      POSTGRES_DB: saas_api
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saas -d saas_api"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      args:
+        # Used only at build time for `prisma generate`;
+        # the runtime DATABASE_URL below overrides it.
+        DATABASE_URL: postgresql://saas:saas@db:5432/saas_api?schema=public
+    container_name: saas-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://saas:saas@db:5432/saas_api?schema=public
+      JWT_SECRET: change-me-in-production
+      JWT_EXPIRES_IN: 15m
+      CORS_ORIGIN: http://localhost:3001
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

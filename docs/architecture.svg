@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 720" font-family="monospace" font-size="13">
+  <!-- Client -->
+  <rect x="100" y="10" width="200" height="40" rx="6" fill="#1a1a2e" stroke="#e94560" stroke-width="2"/>
+  <text x="200" y="35" text-anchor="middle" fill="#ffffff">Client</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="50" x2="200" y2="80" stroke="#888" stroke-width="2"/>
+  <polygon points="200,85 195,75 205,75" fill="#888"/>
+
+  <!-- REST API -->
+  <rect x="60" y="85" width="280" height="50" rx="6" fill="#16213e" stroke="#0f3460" stroke-width="2"/>
+  <text x="200" y="105" text-anchor="middle" fill="#ffffff">REST API (Express)</text>
+  <text x="200" y="123" text-anchor="middle" fill="#aaa" font-size="11">/api/v1 · Zod validation</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="135" x2="200" y2="165" stroke="#888" stroke-width="2"/>
+  <polygon points="200,170 195,160 205,160" fill="#888"/>
+
+  <!-- Authentication -->
+  <rect x="60" y="170" width="280" height="50" rx="6" fill="#16213e" stroke="#e94560" stroke-width="2"/>
+  <text x="200" y="190" text-anchor="middle" fill="#ffffff">Authentication</text>
+  <text x="200" y="208" text-anchor="middle" fill="#aaa" font-size="11">JWT · Bearer header</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="220" x2="200" y2="250" stroke="#888" stroke-width="2"/>
+  <polygon points="200,255 195,245 205,245" fill="#888"/>
+
+  <!-- Authorization -->
+  <rect x="60" y="255" width="280" height="50" rx="6" fill="#16213e" stroke="#0f3460" stroke-width="2"/>
+  <text x="200" y="275" text-anchor="middle" fill="#ffffff">Authorization</text>
+  <text x="200" y="293" text-anchor="middle" fill="#aaa" font-size="11">Role check · USER / ADMIN</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="305" x2="200" y2="335" stroke="#888" stroke-width="2"/>
+  <polygon points="200,340 195,330 205,330" fill="#888"/>
+
+  <!-- Controllers -->
+  <rect x="100" y="340" width="200" height="40" rx="6" fill="#16213e" stroke="#0f3460" stroke-width="2"/>
+  <text x="200" y="365" text-anchor="middle" fill="#ffffff">Controllers</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="380" x2="200" y2="410" stroke="#888" stroke-width="2"/>
+  <polygon points="200,415 195,405 205,405" fill="#888"/>
+
+  <!-- Services -->
+  <rect x="100" y="415" width="200" height="40" rx="6" fill="#16213e" stroke="#0f3460" stroke-width="2"/>
+  <text x="200" y="440" text-anchor="middle" fill="#ffffff">Services</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="455" x2="200" y2="485" stroke="#888" stroke-width="2"/>
+  <polygon points="200,490 195,480 205,480" fill="#888"/>
+
+  <!-- Repositories -->
+  <rect x="100" y="490" width="200" height="40" rx="6" fill="#16213e" stroke="#0f3460" stroke-width="2"/>
+  <text x="200" y="515" text-anchor="middle" fill="#ffffff">Repositories</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="530" x2="200" y2="560" stroke="#888" stroke-width="2"/>
+  <polygon points="200,565 195,555 205,555" fill="#888"/>
+
+  <!-- Prisma -->
+  <rect x="100" y="565" width="200" height="40" rx="6" fill="#16213e" stroke="#0f3460" stroke-width="2"/>
+  <text x="200" y="590" text-anchor="middle" fill="#ffffff">Prisma ORM</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="605" x2="200" y2="635" stroke="#888" stroke-width="2"/>
+  <polygon points="200,640 195,630 205,630" fill="#888"/>
+
+  <!-- PostgreSQL -->
+  <rect x="100" y="640" width="200" height="40" rx="6" fill="#1a1a2e" stroke="#e94560" stroke-width="2"/>
+  <text x="200" y="665" text-anchor="middle" fill="#ffffff">PostgreSQL</text>
+
+  <!-- Side labels -->
+  <text x="30" y="195" fill="#e94560" font-size="11">1</text>
+  <text x="30" y="280" fill="#e94560" font-size="11">2</text>
+  <text x="30" y="360" fill="#e94560" font-size="11">3</text>
+  <text x="30" y="435" fill="#e94560" font-size="11">4</text>
+  <text x="30" y="510" fill="#e94560" font-size="11">5</text>
+</svg>

@@ -2,6 +2,8 @@ import { Router } from "express";
 
 import healthRoutes from "./health.routes";
 
+import docsRoutes from "./docs.routes";
+
 import authRoutes from "./auth.routes";
 
 import usersRoutes from "./users.routes";
@@ -21,6 +23,8 @@ const router = Router();
 
 
 router.use(healthRoutes);
+
+router.use(docsRoutes);
 
 router.use("/auth", authRoutes);
 

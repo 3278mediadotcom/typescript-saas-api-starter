@@ -1,20 +1,36 @@
 # TypeScript SaaS API Starter
 
+[![Tests](https://github.com/3278mediadotcom/typescript-saas-api-starter/actions/workflows/test.yml/badge.svg)](https://github.com/3278mediadotcom/typescript-saas-api-starter/actions/workflows/test.yml)
+
 Production-style TypeScript SaaS backend starter demonstrating authentication, authorization, database architecture, and scalable API patterns.
 
 ## Overview
 
-<!-- TODO: Describe what this project demonstrates and who it is for -->
+A reference SaaS backend architecture built with TypeScript, Express, and Prisma. Models a multi-tenant data layer (User → Organization → Project → ApiKey → AuditLog), a full JWT authentication flow, and role-based authorization.
 
 ## Features
 
-<!-- TODO: List key features as they are built -->
-
-- Coming soon
+- **Multi-tenant data model** — Organization-scoped resources (Stripe/GitHub style)
+- **JWT authentication** — register, login, protected routes
+- **Role-based authorization** — `USER` / `ADMIN` via middleware
+- **Repository + service pattern** — clean separation of concerns
+- **Zod request validation** — malformed payloads rejected early
+- **Audit logging** — register, login, org/project/key actions
+- **Hashed API keys** — `sk_live_...` stored as SHA-256, never plain text
+- **Interactive API docs** — Swagger UI at `/api/v1/docs`
+- **Structured JSON logging** — parseable by Datadog/CloudWatch
+- **Consistent error handling** — `AppError` with machine-readable codes
+- **Automated testing** — Vitest + Supertest (15 tests)
+- **Docker support** — `docker compose up` runs Postgres + API
 
 ## Architecture
 
-<!-- TODO: Add architecture diagram once database and auth are designed -->
+![Architecture](docs/architecture.svg)
+
+1. Request hits the versioned REST API (`/api/v1`) with Zod validation
+2. `authenticate` verifies the JWT and loads the user
+3. `authorize("ADMIN")` enforces roles
+4. Controller → Service (business rules) → Repository (Prisma) → PostgreSQL
 
 ## Tech Stack
 
@@ -171,6 +187,40 @@ Client                     API
 - JWT verification + role-based authorization (`USER` / `ADMIN`)
 - API keys stored hashed (SHA-256), never in plain text
 - Audit logging for registration, login, and admin actions
+
+## API Documentation (Swagger)
+
+Interactive OpenAPI docs are served at:
+
+```text
+http://localhost:3000/api/v1/docs
+```
+
+Raw spec:
+
+```text
+http://localhost:3000/api/v1/docs/json
+```
+
+Covers register, login, me, organizations, and audit-logs with request/response examples.
+
+## Docker
+
+One command starts PostgreSQL + the API:
+
+```bash
+docker compose up
+```
+
+- API: `http://localhost:3000`
+- PostgreSQL: `localhost:5432`
+
+Apply the migration and seed demo data:
+
+```bash
+docker compose exec api npx prisma migrate deploy
+docker compose exec api npm run db:seed
+```
 
 ## Running Locally
 
